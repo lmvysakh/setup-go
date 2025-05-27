@@ -134,3 +134,70 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache: ${{ matrix.cache }}
+go-mod-cache-and-tmp-location:
+  name: 'Validate if GOCACHE, GOMODCACHE, GOTMPDIR is set to platform defaults'
+  runs-on: ${{ matrix.os }}
+  strategy:
+    matrix:
+      os: [windows-latest, ubuntu-latest, macos-latest]
+      cache: [false]
+      go: [1.20.1]
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: 'Setup ${{ matrix.go }}, cache: ${{ matrix.cache }}'
+      uses: ./
+      with:
+        go-version: ${{ matrix.go }}
+        cache: ${{ matrix.cache }}
+
+    - name: 'Check if go mod cache and tmp location is set correctly'
+      shell: bash
+      run: |
+        go env GOCACHE
+        go env GOMODCACHE
+        go env GOTMPDIR
+
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          if [ "$(go env GOCACHE)" != 'D:\Users\runneradmin\AppData\Local\go-build' ]; then
+            echo 'go env GOCACHE should return "D:\Users\runneradmin\AppData\Local\go-build"'
+            exit 1
+          fi
+          if [ "$(go env GOMODCACHE)" != 'D:\Users\runneradmin\go\pkg\mod' ]; then
+            echo 'go env GOMODCACHE should return "D:\Users\runneradmin\go\pkg\mod"'
+            exit 1
+          fi
+          if [ "$(go env GOTMPDIR)" != 'D:\gotmp' ]; then
+            echo 'go env GOTMPDIR should return "D:\gotmp"'
+            exit 1
+          fi
+        elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+          if [ "$(go env GOCACHE)" != '/home/runner/.cache/go-build' ]; then
+            echo 'go env GOCACHE should return "/home/runner/.cache/go-build"'
+            exit 1
+          fi
+          if [ "$(go env GOMODCACHE)" != '/home/runner/go/pkg/mod' ]; then
+            echo 'go env GOMODCACHE should return "/home/runner/go/pkg/mod"'
+            exit 1
+          fi
+          if [ "$(go env GOTMPDIR)" != '/tmp' ]; then
+            echo 'go env GOTMPDIR should return "/tmp"'
+            exit 1
+          fi
+        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          if [ "$(go env GOCACHE)" != '/Users/runner/Library/Caches/go-build' ]; then
+            echo 'go env GOCACHE should return "/Users/runner/Library/Caches/go-build"'
+            exit 1
+          fi
+          if [ "$(go env GOMODCACHE)" != '/Users/runner/go/pkg/mod' ]; then
+            echo 'go env GOMODCACHE should return "/Users/runner/go/pkg/mod"'
+            exit 1
+          fi
+          if [ "$(go env GOTMPDIR)" != '/tmp' ]; then
+            echo 'go env GOTMPDIR should return "/tmp"'
+            exit 1
+          fi
+        else
+          echo "Unknown OS: ${{ matrix.os }}"
+          exit 1
+        fi
