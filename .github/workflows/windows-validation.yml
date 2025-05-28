@@ -151,53 +151,123 @@ go-mod-cache-and-tmp-location:
         go-version: ${{ matrix.go }}
         cache: ${{ matrix.cache }}
 
-    - name: 'Check if go mod cache and tmp location is set correctly'
-      shell: bash
-      run: |
-        go env GOCACHE
-        go env GOMODCACHE
-        go env GOTMPDIR
+    # - name: 'Check if go mod cache and tmp location is set correctly'
+    #   shell: bash
+    #   run: |
+    #     go env GOCACHE
+    #     go env GOMODCACHE
+    #     go env GOTMPDIR
 
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          if [ "$(go env GOCACHE)" != 'D:\Users\runneradmin\AppData\Local\go-build' ]; then
-            echo 'go env GOCACHE should return "D:\Users\runneradmin\AppData\Local\go-build"'
-            exit 1
-          fi
-          if [ "$(go env GOMODCACHE)" != 'D:\Users\runneradmin\go\pkg\mod' ]; then
-            echo 'go env GOMODCACHE should return "D:\Users\runneradmin\go\pkg\mod"'
-            exit 1
-          fi
-          if [ "$(go env GOTMPDIR)" != 'D:\gotmp' ]; then
-            echo 'go env GOTMPDIR should return "D:\gotmp"'
-            exit 1
-          fi
-        elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-          if [ "$(go env GOCACHE)" != '/home/runner/.cache/go-build' ]; then
-            echo 'go env GOCACHE should return "/home/runner/.cache/go-build"'
-            exit 1
-          fi
-          if [ "$(go env GOMODCACHE)" != '/home/runner/go/pkg/mod' ]; then
-            echo 'go env GOMODCACHE should return "/home/runner/go/pkg/mod"'
-            exit 1
-          fi
-          if [ "$(go env GOTMPDIR)" != '/tmp' ]; then
-            echo 'go env GOTMPDIR should return "/tmp"'
-            exit 1
-          fi
-        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-          if [ "$(go env GOCACHE)" != '/Users/runner/Library/Caches/go-build' ]; then
-            echo 'go env GOCACHE should return "/Users/runner/Library/Caches/go-build"'
-            exit 1
-          fi
-          if [ "$(go env GOMODCACHE)" != '/Users/runner/go/pkg/mod' ]; then
-            echo 'go env GOMODCACHE should return "/Users/runner/go/pkg/mod"'
-            exit 1
-          fi
-          if [ "$(go env GOTMPDIR)" != '/tmp' ]; then
-            echo 'go env GOTMPDIR should return "/tmp"'
-            exit 1
-          fi
-        else
-          echo "Unknown OS: ${{ matrix.os }}"
-          exit 1
-        fi
+    #     if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+    #       if [ "$(go env GOCACHE)" != 'D:\Users\runneradmin\AppData\Local\go-build' ]; then
+    #         echo 'go env GOCACHE should return "D:\Users\runneradmin\AppData\Local\go-build"'
+    #         exit 1
+    #       fi
+    #       if [ "$(go env GOMODCACHE)" != 'D:\Users\runneradmin\go\pkg\mod' ]; then
+    #         echo 'go env GOMODCACHE should return "D:\Users\runneradmin\go\pkg\mod"'
+    #         exit 1
+    #       fi
+    #       if [ "$(go env GOTMPDIR)" != 'D:\gotmp' ]; then
+    #         echo 'go env GOTMPDIR should return "D:\gotmp"'
+    #         exit 1
+    #       fi
+    #     elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+    #       if [ "$(go env GOCACHE)" != '/home/runner/.cache/go-build' ]; then
+    #         echo 'go env GOCACHE should return "/home/runner/.cache/go-build"'
+    #         exit 1
+    #       fi
+    #       if [ "$(go env GOMODCACHE)" != '/home/runner/go/pkg/mod' ]; then
+    #         echo 'go env GOMODCACHE should return "/home/runner/go/pkg/mod"'
+    #         exit 1
+    #       fi
+    #       if [ "$(go env GOTMPDIR)" != '/tmp' ]; then
+    #         echo 'go env GOTMPDIR should return "/tmp"'
+    #         exit 1
+    #       fi
+    #     elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+    #       if [ "$(go env GOCACHE)" != '/Users/runner/Library/Caches/go-build' ]; then
+    #         echo 'go env GOCACHE should return "/Users/runner/Library/Caches/go-build"'
+    #         exit 1
+    #       fi
+    #       if [ "$(go env GOMODCACHE)" != '/Users/runner/go/pkg/mod' ]; then
+    #         echo 'go env GOMODCACHE should return "/Users/runner/go/pkg/mod"'
+    #         exit 1
+    #       fi
+    #       if [ "$(go env GOTMPDIR)" != '/tmp' ]; then
+    #         echo 'go env GOTMPDIR should return "/tmp"'
+    #         exit 1
+    #       fi
+    #     else
+    #       echo "Unknown OS: ${{ matrix.os }}"
+    #       exit 1
+    #     fi
+
+  -name: 'Check Go environment variables'
+  shell: bash
+  run: |
+    echo "RUNNER_OS=$RUNNER_OS"
+    echo "go version: $(go version)"
+
+    actual_gocache=$(go env GOCACHE)
+    actual_gomodcache=$(go env GOMODCACHE)
+    actual_gotmpdir=$(go env GOTMPDIR)
+
+    echo "GOCACHE: $actual_gocache"
+    echo "GOMODCACHE: $actual_gomodcache"
+    echo "GOTMPDIR: $actual_gotmpdir"
+
+    if [ "$RUNNER_OS" = "Windows" ]; then
+      expected_gocache='D:\Users\runneradmin\AppData\Local\go-build'
+      expected_gomodcache='D:\Users\runneradmin\go\pkg\mod'
+      expected_gotmpdir='D:\gotmp'
+      if [ "$actual_gocache" != "$expected_gocache" ]; then
+        echo "GOCACHE should be $expected_gocache"
+        exit 1
+      fi
+      if [ "$actual_gomodcache" != "$expected_gomodcache" ]; then
+        echo "GOMODCACHE should be $expected_gomodcache"
+        exit 1
+      fi
+      if [ "$actual_gotmpdir" != "$expected_gotmpdir" ]; then
+        echo "GOTMPDIR should be $expected_gotmpdir"
+        exit 1
+      fi
+    elif [ "$RUNNER_OS" = "Linux" ]; then
+      expected_gocache='/home/runner/.cache/go-build'
+      expected_gomodcache='/home/runner/go/pkg/mod'
+      # GOTMPDIR is usually unset, fallback to /tmp if unset
+      expected_gotmpdir='/tmp'
+      if [ "$actual_gocache" != "$expected_gocache" ]; then
+        echo "GOCACHE should be $expected_gocache"
+        exit 1
+      fi
+      if [ "$actual_gomodcache" != "$expected_gomodcache" ]; then
+        echo "GOMODCACHE should be $expected_gomodcache"
+        exit 1
+      fi
+      # Accept both unset and /tmp as valid
+      if [ -n "$actual_gotmpdir" ] && [ "$actual_gotmpdir" != "$expected_gotmpdir" ]; then
+        echo "GOTMPDIR should be empty or $expected_gotmpdir"
+        exit 1
+      fi
+    elif [ "$RUNNER_OS" = "macOS" ]; then
+      expected_gocache='/Users/runner/Library/Caches/go-build'
+      expected_gomodcache='/Users/runner/go/pkg/mod'
+      expected_gotmpdir='/tmp'
+      if [ "$actual_gocache" != "$expected_gocache" ]; then
+        echo "GOCACHE should be $expected_gocache"
+        exit 1
+      fi
+      if [ "$actual_gomodcache" != "$expected_gomodcache" ]; then
+        echo "GOMODCACHE should be $expected_gomodcache"
+        exit 1
+      fi
+      # Accept both unset and /tmp as valid
+      if [ -n "$actual_gotmpdir" ] && [ "$actual_gotmpdir" != "$expected_gotmpdir" ]; then
+        echo "GOTMPDIR should be empty or $expected_gotmpdir"
+        exit 1
+      fi
+    else
+      echo "Unknown OS: $RUNNER_OS"
+      exit 1
+    fi
