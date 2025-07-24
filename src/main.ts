@@ -51,6 +51,11 @@ export async function run() {
         core.exportVariable('GOROOT', installDir);
       }
 
+      // Set GOTOOLCHAIN for Go versions >= 1.21.0
+      if (semver.gte(version, '1.21.0')) {
+        setToolchain();
+      }
+
       core.info(`Successfully set up Go version ${versionSpec}`);
     } else {
       core.info(
