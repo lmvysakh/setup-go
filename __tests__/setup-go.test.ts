@@ -1035,6 +1035,9 @@ use .
     inputs['go-version'] = '1.21.0';
     inSpy.mockImplementation(name => inputs[name]);
 
+    const toolPath = path.normalize('/cache/go/1.21.0/x64');
+    findSpy.mockImplementation(() => toolPath);
+
     const vars: {[key: string]: string} = {};
     exportVarSpy.mockImplementation((name: string, val: string) => {
       vars[name] = val;
