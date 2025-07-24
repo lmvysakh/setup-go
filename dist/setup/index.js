@@ -93593,8 +93593,14 @@ function parseGoVersionFile(versionFilePath) {
     const contents = fs_1.default.readFileSync(versionFilePath).toString();
     if (path.basename(versionFilePath) === 'go.mod' ||
         path.basename(versionFilePath) === 'go.work') {
-        const match = contents.match(/^go (\d+(\.\d+)*)/m);
-        return match ? match[1] : '';
+        // toolchain directive: https://go.dev/ref/mod#go-mod-file-toolchain
+        const matchToolchain = contents.match(/^toolchain go(\d+(\.\d+)*)/m);
+        if (matchToolchain) {
+            return matchToolchain[1];
+        }
+        // go directive: https://go.dev/ref/mod#go-mod-file-go
+        const matchGo = contents.match(/^go (\d+(\.\d+)*)/m);
+        return matchGo ? matchGo[1] : '';
     }
     return contents.trim();
 }
@@ -93819,6 +93825,21 @@ function resolveVersionInput() {
         version = installer.parseGoVersionFile(versionFilePath);
     }
     return version;
+}
+function setToolchain() {
+    // docs: https://go.dev/doc/toolchain
+    // "local indicates the bundled Go toolchain (the one that shipped with the go command being run)"
+    // this is so any 'go' command is run with the selected Go version
+    // and doesn't trigger a toolchain download and run commands with that
+    // see e.g. issue #424
+    // and a similar discussion: https://github.com/docker-library/golang/issues/472
+    const toolchain = 'local';
+    const toolchainVar = 'GOTOOLCHAIN';
+    // set the value in process env so any `go` commands run as child-process
+    // don't cause toolchain downloads
+    process.env[toolchainVar] = toolchain;
+    // and in the runner env so e.g. a user running `go mod tidy` won't cause it
+    core.exportVariable(toolchainVar, toolchain);
 }
 
 
