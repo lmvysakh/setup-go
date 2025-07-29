@@ -94663,14 +94663,8 @@ function parseGoVersionFile(versionFilePath) {
     const contents = fs_1.default.readFileSync(versionFilePath).toString();
     if (path.basename(versionFilePath) === 'go.mod' ||
         path.basename(versionFilePath) === 'go.work') {
-        // toolchain directive: https://go.dev/ref/mod#go-mod-file-toolchain
-        const matchToolchain = contents.match(/^toolchain go(\d+(\.\d+)*)/m);
-        if (matchToolchain) {
-            return matchToolchain[1];
-        }
-        // go directive: https://go.dev/ref/mod#go-mod-file-go
-        const matchGo = contents.match(/^go (\d+(\.\d+)*)/m);
-        return matchGo ? matchGo[1] : '';
+        const match = contents.match(/^go (\d+(\.\d+)*)/m);
+        return match ? match[1] : '';
     }
     return contents.trim();
 }
@@ -94783,6 +94777,7 @@ const os_1 = __importDefault(__nccwpck_require__(2037));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            setToolchain();
             //
             // versionSpec is optional.  If supplied, install / use from the tool cache
             // If not supplied then problem matchers will still be setup.  Useful for self-hosted.

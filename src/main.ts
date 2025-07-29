@@ -11,6 +11,7 @@ import os from 'os';
 
 export async function run() {
   try {
+    setToolchain();
     //
     // versionSpec is optional.  If supplied, install / use from the tool cache
     // If not supplied then problem matchers will still be setup.  Useful for self-hosted.
