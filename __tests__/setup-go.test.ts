@@ -867,8 +867,16 @@ use .
 
     it('reads version from go.mod', async () => {
       inputs['go-version-file'] = 'go.mod';
+      inSpy.mockImplementation(name => inputs[name]);
       existsSpy.mockImplementation(() => true);
-      readFileSpy.mockImplementation(() => Buffer.from(goModContents));
+      readFileSpy.mockImplementation(() => goModContents); // Return string, not Buffer
+
+      // Add missing mocks
+      findSpy.mockImplementation(() => '');
+      dlSpy.mockImplementation(() => '/some/temp/path');
+      extractTarSpy.mockImplementation(() => '/some/other/temp/path');
+      const toolPath = path.normalize('/cache/go/1.14.0/x64');
+      cacheSpy.mockImplementation(() => toolPath);
 
       await main.run();
 
@@ -879,8 +887,16 @@ use .
 
     it('reads version from go.work', async () => {
       inputs['go-version-file'] = 'go.work';
+      inSpy.mockImplementation(name => inputs[name]);
       existsSpy.mockImplementation(() => true);
-      readFileSpy.mockImplementation(() => Buffer.from(goWorkContents));
+      readFileSpy.mockImplementation(() => goWorkContents); // Return string, not Buffer
+
+      // Add missing mocks
+      findSpy.mockImplementation(() => '');
+      dlSpy.mockImplementation(() => '/some/temp/path');
+      extractTarSpy.mockImplementation(() => '/some/other/temp/path');
+      const toolPath = path.normalize('/cache/go/1.19.0/x64');
+      cacheSpy.mockImplementation(() => toolPath);
 
       await main.run();
 
@@ -891,8 +907,16 @@ use .
 
     it('reads version from .go-version', async () => {
       inputs['go-version-file'] = '.go-version';
+      inSpy.mockImplementation(name => inputs[name]);
       existsSpy.mockImplementation(() => true);
-      readFileSpy.mockImplementation(() => Buffer.from(`1.13.0${osm.EOL}`));
+      readFileSpy.mockImplementation(() => `1.13.0${osm.EOL}`); // Return string, not Buffer
+
+      // Add missing mocks
+      findSpy.mockImplementation(() => '');
+      dlSpy.mockImplementation(() => '/some/temp/path');
+      extractTarSpy.mockImplementation(() => '/some/other/temp/path');
+      const toolPath = path.normalize('/cache/go/1.13.0/x64');
+      cacheSpy.mockImplementation(() => toolPath);
 
       await main.run();
 
@@ -991,6 +1015,9 @@ use .
   it('exports GOTOOLCHAIN and sets it in current process env', async () => {
     inputs['go-version'] = '1.21.0';
     inSpy.mockImplementation(name => inputs[name]);
+
+    const toolPath = path.normalize('/cache/go/1.21.0/x64');
+    findSpy.mockImplementation(() => toolPath);
 
     const vars: {[key: string]: string} = {};
     exportVarSpy.mockImplementation((name: string, val: string) => {

@@ -11,7 +11,6 @@ import os from 'os';
 
 export async function run() {
   try {
-    setToolchain();
     //
     // versionSpec is optional.  If supplied, install / use from the tool cache
     // If not supplied then problem matchers will still be setup.  Useful for self-hosted.
@@ -50,6 +49,11 @@ export async function run() {
       if (semver.lt(version, '1.9.0')) {
         core.info('Setting GOROOT for Go version < 1.9');
         core.exportVariable('GOROOT', installDir);
+      }
+
+      // Set GOTOOLCHAIN for Go versions >= 1.21.0
+      if (semver.gte(version, '1.21.0')) {
+        setToolchain();
       }
 
       core.info(`Successfully set up Go version ${versionSpec}`);
@@ -139,6 +143,7 @@ export function parseGoVersion(versionString: string): string {
 function resolveVersionInput(): string {
   let version = core.getInput('go-version');
   const versionFilePath = core.getInput('go-version-file');
+  const versionDirective = core.getInput('go-version-directive') || 'go';
 
   if (version && versionFilePath) {
     core.warning(
@@ -156,7 +161,38 @@ function resolveVersionInput(): string {
         `The specified go version file at: ${versionFilePath} does not exist`
       );
     }
-    version = installer.parseGoVersionFile(versionFilePath);
+
+    const content = fs.readFileSync(versionFilePath, 'utf8').trim();
+    let foundVersion: string | undefined;
+
+    // Handle .go-version files (simple version string)
+    if (versionFilePath.endsWith('.go-version')) {
+      // .go-version files just contain the version number
+      foundVersion = content.split('\n')[0].trim();
+    } else {
+      // Handle go.mod/go.work files
+      if (versionDirective === 'toolchain') {
+        // Try toolchain directive first
+        const toolchainMatch = content.match(
+          /^toolchain\s+go(\d+\.\d+(?:\.\d+)?)/m
+        );
+        if (toolchainMatch) {
+          foundVersion = toolchainMatch[1];
+        }
+      }
+      // Fallback to go directive if not found or directive is set to "go"
+      if (!foundVersion) {
+        const goMatch = content.match(/^go\s+(\d+\.\d+(?:\.\d+)?)/m);
+        if (goMatch) {
+          foundVersion = goMatch[1];
+        }
+      }
+    }
+
+    if (!foundVersion) {
+      throw new Error(`No valid version found in ${versionFilePath}`);
+    }
+    version = foundVersion;
   }
 
   return version;
