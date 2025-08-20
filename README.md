@@ -211,6 +211,62 @@ steps:
   - run: go version
 ```
 
+## Improved Toolchain Handling
+
+### Toolchain Directive Support
+
+The action now supports finer control over which Go version is installed when using a `go.mod` file, especially in projects that use both the `go` and `toolchain` directives.
+
+#### Inputs
+
+- **go-version**  
+  _Explicitly specify a Go version._  
+  If set, this always takes precedence.
+
+- **go-version-file**  
+  _Path to a file (usually `go.mod`) from which to extract the Go version._  
+  If `go-version` is not set, the action will use this file.
+
+- **go-version-directive**  
+  _Choose which directive to use when extracting the Go version from `go.mod`._  
+  - Options: `"go"` (default) or `"toolchain"`
+  - If set to `"toolchain"`, and a `toolchain` directive is present, the action will use the version specified there.
+  - If `"toolchain"` is not present or not selected, the action falls back to the `go` directive.
+
+  Example usage in workflow:
+  ```yaml
+  - uses: actions/setup-go@vX
+    with:
+      go-version-file: go.mod
+      go-version-directive: toolchain
+  ```
+
+#### Toolchain Environment Variable
+
+- The action sets `GOTOOLCHAIN=local` for all Go commands in the workflow.
+- This ensures that the installed version is always used and prevents Go from automatically downloading or switching to other toolchains.
+
+#### Behavior Summary
+
+- If you specify `go-version`, that version will be installed and used.
+- If you use `go-version-file` and `go-version-directive: toolchain`, the version from the `toolchain` directive will be used (if present).
+- If no explicit version is set and only `go-version-file` is given, the action will default to the `go` directive.
+- If neither are set, the action uses the pre-installed Go version on the runner.
+
+#### Example Scenarios
+
+| Scenario | go-version | go-version-file | go-version-directive | Result |
+|----------|------------|-----------------|----------------------|--------|
+| Explicit version | 1.21.0 | _any_ | _any_ | Go 1.21.0 installed |
+| go.mod with toolchain | _none_ | go.mod | toolchain | Go version from toolchain directive installed |
+| go.mod only | _none_ | go.mod | go | Go version from go directive installed |
+| No inputs | _none_ | _none_ | _none_ | Uses runner's Go version |
+
+
+
+
+
+
 ## Matrix testing
 
 ```yaml
