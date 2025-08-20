@@ -6,6 +6,10 @@ inputs:
     description: 'The Go version to download (if necessary) and use. Supports semver spec and ranges. Be sure to enclose this option in single quotation marks.'
   go-version-file:
     description: 'Path to the go.mod or go.work file.'
+  go-version-directive:
+    description: 'Which directive to use from go.mod when using go-version-file. Options: "go" or "toolchain". Defaults to "go".'
+    required: false
+    default: 'go'
   check-latest:
     description: 'Set this option to true if you want the action to always check for the latest available version that satisfies the version spec'
     default: false
