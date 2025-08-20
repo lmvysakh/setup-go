@@ -173,8 +173,11 @@ function resolveVersionInput(): string {
       // Handle go.mod/go.work files
       if (versionDirective === 'toolchain') {
         // Try toolchain directive first
+        // const toolchainMatch = content.match(
+        //   /^toolchain\s+go(\d+\.\d+(?:\.\d+)?)/m
+        // );
         const toolchainMatch = content.match(
-          /^toolchain\s+go(\d+\.\d+(?:\.\d+)?)/m
+          /^toolchain\s+go(\d+\.\d+(?:\.\d+|rc\d+)?)/m
         );
         if (toolchainMatch) {
           foundVersion = toolchainMatch[1];
