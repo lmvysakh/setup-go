@@ -151,6 +151,13 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
 
+      - name: 'Debug Go Installation'
+        run: |
+          which go
+          go version
+          echo $PATH
+        shell: powwershell
+
       - name: 'Setup ${{ matrix.go }}, cache: ${{ matrix.cache }}'
         uses: ./
         with:
