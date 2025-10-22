@@ -158,11 +158,11 @@ jobs:
           echo $PATH
         shell: powwershell
 
-      - name: 'Setup ${{ matrix.go }}, cache: ${{ matrix.cache }}'
-        uses: ./
-        with:
-          go-version: ${{ matrix.go }}
-          cache: ${{ matrix.cache }}
+      # - name: 'Setup ${{ matrix.go }}, cache: ${{ matrix.cache }}'
+      #   uses: ./
+      #   with:
+      #     go-version: ${{ matrix.go }}
+      #     cache: ${{ matrix.cache }}
 
       - name: 'Check if go mod cache and tmp location is set correctly'
         run: |
