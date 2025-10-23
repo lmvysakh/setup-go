@@ -143,21 +143,7 @@ jobs:
         cache: [false]
         go: [1.24.3]
     steps:
-      - uses: actions/checkout@v5
-
-        # Ensure Go is installed and available in PATH
-      - name: 'Install Go'
-        uses: actions/setup-go@v6
-        with:
-          go-version: ${{ matrix.go }}
-          cache: ${{ matrix.cache }}
-
-      - name: 'Debug Go Installation'
-        run: |
-          which go
-          go version
-          echo $PATH
-        shell: powershell
+      - uses: actions/checkout@v4
 
       - name: 'Setup ${{ matrix.go }}, cache: ${{ matrix.cache }}'
         uses: ./
