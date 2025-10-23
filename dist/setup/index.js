@@ -94119,7 +94119,7 @@ const setWindowsCacheDirectories = () => __awaiter(void 0, void 0, void 0, funct
     // Check if Go is available
     const goExists = yield (0, cache_utils_1.getCommandOutput)('go version').catch(() => null);
     if (!goExists) {
-        core.setFailed('Go executable not found. Please ensure Go is installed and in the PATH before running this action.');
+        // core.setFailed('Go executable not found. Please ensure Go is installed and in the PATH before running this action.');
         return;
     }
     if (!fs_1.default.existsSync('D:'))
