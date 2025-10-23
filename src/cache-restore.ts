@@ -55,8 +55,16 @@ export const restoreCache = async (
   core.info(`Cache restored from key: ${cacheKey}`);
 };
 
+
 export const setWindowsCacheDirectories = async () => {
   if (os.platform() !== 'win32') return;
+
+  // Check if Go is available
+  const goExists = await getCommandOutput('go version').catch(() => null);
+  if (!goExists) {
+    core.setFailed('Go executable not found. Please ensure Go is installed and in the PATH before running this action.');
+    return;
+  }
 
   if (!fs.existsSync('D:')) return;
 
@@ -66,7 +74,7 @@ export const setWindowsCacheDirectories = async () => {
 
   if (!fs.existsSync(goCache)) {
     core.info(`${goCache} does not exist. Creating`);
-    fs.mkdirSync(goCache, {recursive: true});
+    fs.mkdirSync(goCache, { recursive: true });
   }
 
   const setOutput = await getCommandOutput(`go env -w GOCACHE=${goCache}`);
@@ -78,12 +86,10 @@ export const setWindowsCacheDirectories = async () => {
 
   if (!fs.existsSync(goModCache)) {
     core.info(`${goModCache} does not exist. Creating`);
-    fs.mkdirSync(goModCache, {recursive: true});
+    fs.mkdirSync(goModCache, { recursive: true });
   }
 
-  const setModOutput = await getCommandOutput(
-    `go env -w GOMODCACHE=${goModCache}`
-  );
+  const setModOutput = await getCommandOutput(`go env -w GOMODCACHE=${goModCache}`);
   core.info(`go env -w GOMODCACHE output: ${setModOutput}`);
 
   let goTmpDir = await getCommandOutput(`go env GOTMPDIR`);
@@ -95,12 +101,10 @@ export const setWindowsCacheDirectories = async () => {
 
   if (!fs.existsSync(goTmpDir)) {
     core.info(`${goTmpDir} does not exist. Creating`);
-    fs.mkdirSync(goTmpDir, {recursive: true});
+    fs.mkdirSync(goTmpDir, { recursive: true });
   }
 
-  const setGoTmpOutput = await getCommandOutput(
-    `go env -w GOTMPDIR=${goTmpDir}`
-  );
+  const setGoTmpOutput = await getCommandOutput(`go env -w GOTMPDIR=${goTmpDir}`);
   core.info(`go env -w GOTMPDIR output: ${setGoTmpOutput}`);
 };
 
