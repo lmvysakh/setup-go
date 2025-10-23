@@ -62,7 +62,6 @@ export const setWindowsCacheDirectories = async () => {
   // Check if Go is available
   const goExists = await getCommandOutput('go version').catch(() => null);
   if (!goExists) {
-    // core.setFailed('Go executable not found. Please ensure Go is installed and in the PATH before running this action.');
     return;
   }
 
