@@ -79,7 +79,6 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
         id: goversion
         shell: bash
-
   dont-create-link-if-default:
     name: 'Validate if symlink is not created for default go'
     runs-on: windows-latest
@@ -141,7 +140,7 @@ jobs:
     strategy:
       matrix:
         cache: [false]
-        go: [1.24.3]
+        go: [1.20.1]
     steps:
       - uses: actions/checkout@v4
 
