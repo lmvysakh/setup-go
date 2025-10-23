@@ -57,6 +57,12 @@ export const restoreCache = async (
 export const setWindowsCacheDirectories = async () => {
   if (os.platform() !== 'win32') return;
 
+  // Check if Go is available
+  const goExists = await getCommandOutput('go version').catch(() => null);
+  if (!goExists) {
+    return;
+  }
+
   if (!fs.existsSync('D:')) return;
 
   let goCache = await getCommandOutput(`go env GOCACHE`);

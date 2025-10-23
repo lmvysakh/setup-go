@@ -94116,6 +94116,11 @@ exports.restoreCache = restoreCache;
 const setWindowsCacheDirectories = () => __awaiter(void 0, void 0, void 0, function* () {
     if (os_1.default.platform() !== 'win32')
         return;
+    // Check if Go is available
+    const goExists = yield (0, cache_utils_1.getCommandOutput)('go version').catch(() => null);
+    if (!goExists) {
+        return;
+    }
     if (!fs_1.default.existsSync('D:'))
         return;
     let goCache = yield (0, cache_utils_1.getCommandOutput)(`go env GOCACHE`);
