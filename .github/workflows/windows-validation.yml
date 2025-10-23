@@ -159,11 +159,18 @@ jobs:
           echo $PATH
         shell: powershell
 
-      # - name: 'Setup ${{ matrix.go }}, cache: ${{ matrix.cache }}'
-      #   uses: ./
-      #   with:
-      #     go-version: ${{ matrix.go }}
-      #     cache: ${{ matrix.cache }}
+      - name: 'Setup ${{ matrix.go }}, cache: ${{ matrix.cache }}'
+        uses: ./
+        with:
+          go-version: ${{ matrix.go }}
+          cache: ${{ matrix.cache }}
+
+      - name: 'Debug Go Installation'
+        run: |
+          which go
+          go version
+          echo $PATH
+        shell: powershell
 
       - name: 'Check if go mod cache and tmp location is set correctly'
         run: |
@@ -172,14 +179,17 @@ jobs:
           go env GOTMPDIR
           if [ $(go env GOCACHE) != 'D:\Users\runneradmin\AppData\Local\go-build' ];then
             echo 'go env GOCACHE should return "D:\Users\runneradmin\AppData\Local\go-build"'
+            echo 'This is the ${{PATH}}'
             exit 1
           fi
           if [ $(go env GOMODCACHE) != 'D:\Users\runneradmin\go\pkg\mod' ];then
             echo 'go env GOMODCACHE should return "D:\Users\runneradmin\go\pkg\mod"'
+            echo 'This is the ${{PATH}}'
             exit 1
           fi
           if [ $(go env GOTMPDIR) != 'D:\gotmp' ];then
             echo 'go env GOTMPDIR should return "D:\gotmp"'
+            echo 'This is the ${{PATH}}'
             exit 1
           fi
         shell: bash
